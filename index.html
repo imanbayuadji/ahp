@@ -1,0 +1,2220 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytic Hierarchy Process (AHP) - Sistem Pendukung Keputusan Strategis</title>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-light: #3b82f6;
+      --primary-dark: #172554;
+      --accent: #0284c7;
+      --success: #059669;
+      --success-bg: #ecfdf5;
+      --danger: #dc2626;
+      --danger-bg: #fef2f2;
+      --warning: #d97706;
+      --warning-bg: #fffbeb;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #e2e8f0;
+      --border-dark: #cbd5e1;
+      --input-bg: #dce6f1;
+      --calc-bg: #e2efda;
+      --summary-bg: #fff2cc;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 0 0 40px 0;
+    }
+
+    /* KONTENER OVERLAY LOGIN */
+    .login-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: #ffffff;
+      padding: 36px 32px;
+      border-radius: 16px;
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 440px;
+      text-align: center;
+    }
+
+    .login-card h2 {
+      color: var(--primary-dark);
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-top: 8px;
+      margin-bottom: 6px;
+    }
+
+    .login-card p {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      margin-bottom: 24px;
+    }
+
+    .login-error {
+      display: none;
+      background-color: var(--danger-bg);
+      color: var(--danger);
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      border: 1px solid #fecaca;
+    }
+
+    /* KONTANER HEADER & NAVIGASI STATIS / STICKY */
+    .sticky-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background-color: var(--bg);
+      box-shadow: var(--shadow);
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+      color: #ffffff;
+      padding: 20px 24px;
+      border-bottom: 4px solid var(--accent);
+    }
+
+    .header-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border-radius: 9999px;
+      margin-bottom: 8px;
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-size: 0.92rem;
+      color: #cbd5e1;
+      max-width: 850px;
+    }
+
+    .user-chip {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 8px 14px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 10px 24px;
+      background-color: var(--bg);
+      overflow-x: auto;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab-btn {
+      background-color: #ffffff;
+      border: 1px solid var(--border);
+      padding: 10px 18px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      color: var(--primary);
+      border-color: var(--primary-light);
+    }
+
+    .tab-btn.active {
+      background-color: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+      box-shadow: var(--shadow);
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 24px auto 0;
+      padding: 0 24px;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .form-control {
+      padding: 10px 12px;
+      border: 1px solid var(--border-dark);
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      background-color: #ffffff;
+      color: var(--text);
+      transition: border-color 0.2s;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background-color: var(--primary-light);
+    }
+
+    .kpi-card.success::before { background-color: var(--success); }
+    .kpi-card.warning::before { background-color: var(--warning); }
+    .kpi-card.danger::before { background-color: var(--danger); }
+
+    .kpi-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .kpi-value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .kpi-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+
+    .status-pill.valid {
+      background-color: var(--success-bg);
+      color: var(--success);
+    }
+
+    .status-pill.invalid {
+      background-color: var(--danger-bg);
+      color: var(--danger);
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+      margin-bottom: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+    }
+
+    th {
+      background-color: #f1f5f9;
+      color: var(--text);
+      font-weight: 700;
+      text-align: center;
+    }
+
+    td.center { text-align: center; }
+    td.right { text-align: right; }
+
+    .cell-input {
+      background-color: var(--input-bg);
+      font-weight: 600;
+    }
+
+    .cell-calc {
+      background-color: var(--calc-bg);
+    }
+
+    .cell-summary {
+      background-color: var(--summary-bg);
+      font-weight: 700;
+    }
+
+    select.ahp-select {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid var(--border-dark);
+      border-radius: 6px;
+      background-color: #ffffff;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    select.ahp-select:focus {
+      outline: 2px solid var(--primary-light);
+    }
+
+    .scale-guide {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 16px;
+      font-size: 0.85rem;
+    }
+
+    .scale-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .scale-item {
+      background: #ffffff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .scale-item strong {
+      color: var(--primary);
+    }
+
+    .chart-container {
+      margin: 20px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .bar-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .bar-label {
+      width: 160px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 24px;
+      background-color: #f1f5f9;
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      transition: width 0.4s ease;
+      display: flex;
+      align-items: center;
+      padding-left: 8px;
+      color: #ffffff;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .bar-value {
+      width: 70px;
+      text-align: right;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .slider-group {
+      margin-bottom: 16px;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      border-radius: 4px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .formula-box {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 16px 20px;
+      border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.85rem;
+      line-height: 1.7;
+      margin: 12px 0;
+      overflow-x: auto;
+    }
+
+    .example-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 8px;
+      padding: 18px;
+      margin: 16px 0;
+      font-size: 0.9rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary {
+      background: #ffffff;
+      border-color: var(--border-dark);
+      color: var(--text);
+    }
+
+    .btn-secondary:hover {
+      background: #f1f5f9;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-light);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: #ffffff;
+    }
+
+    .btn-success:hover {
+      background: #047857;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #ffffff;
+    }
+
+    .btn-danger:hover {
+      background: #b91c1c;
+    }
+
+    .legend-box {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+      font-size: 0.82rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 1px solid var(--border-dark);
+    }
+
+    @media print {
+      body { background: #ffffff; }
+      .login-overlay { display: none !important; }
+      .sticky-header { position: relative; box-shadow: none; }
+      header { padding: 16px 0; }
+      .nav-tabs, .btn, .user-chip { display: none !important; }
+      .tab-content { display: block !important; margin-bottom: 40px; }
+      .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- MODAL / OVERLAY LOGIN RESPONDEN -->
+  <div id="login-overlay" class="login-overlay">
+    <div class="login-card">
+      <span class="badge" style="background-color: rgba(30, 58, 138, 0.1); color: var(--primary);">Autentikasi Akses Sistem</span>
+      <h2>Login Responden AHP</h2>
+      <p>Silakan masukkan nama Anda dan kata sandi akses untuk memulai evaluasi keputusan.</p>
+      
+      <div id="login-error-msg" class="login-error"></div>
+      
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group" style="text-align: left; margin-bottom: 16px;">
+          <label for="login-username">Nama Responden / Evaluator</label>
+          <input type="text" id="login-username" class="form-control" placeholder="Masukkan nama lengkap Anda..." required>
+        </div>
+        <div class="form-group" style="text-align: left; margin-bottom: 24px;">
+          <label for="login-password">Password Akses</label>
+          <input type="password" id="login-password" class="form-control" placeholder="Masukkan password (leadership)..." required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 0.95rem;">
+          🔒 Masuk ke Aplikasi
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- KONTANER UTAMA APLIKASI (DISEMBUNYIKAN SEBELUM LOGIN) -->
+  <div id="app-container" style="display: none;">
+    <!-- KONTANER STATIS KEPALA/HEADER & NAVIGASI TAB -->
+    <div class="sticky-header">
+      <header>
+        <div class="header-container">
+          <div>
+            <span class="badge">Sistem Pendukung Keputusan Multikriteria (MCDM)</span>
+            <h1>Kalkulator & Eksekutif Dashboard AHP</h1>
+            <p class="subtitle" id="header-subtitle">
+              Implementasi Metodologi <em>Analytic Hierarchy Process</em> (Thomas L. Saaty, 1980) untuk Evaluasi Keputusan Strategis.
+            </p>
+          </div>
+          <div class="user-chip">
+            <span style="font-size: 0.85rem;">👤 Responden: <strong id="header-user-display">-</strong></span>
+            <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;" onclick="handleLogout()">Keluar (Logout)</button>
+          </div>
+        </div>
+      </header>
+
+      <nav class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('setup')">1. Identitas & Form Parameter</button>
+        <button class="tab-btn" onclick="switchTab('kriteria')">2. Matriks Kriteria & Uji CR</button>
+        <button class="tab-btn" onclick="switchTab('alternatif')">3. Matriks Perbandingan Alternatif</button>
+        <button class="tab-btn" onclick="switchTab('sintesis')">4. Sintesis Global & Sensitivitas</button>
+        <button class="tab-btn" onclick="switchTab('dashboard')">5. Dashboard Eksekutif</button>
+        <button class="tab-btn" onclick="switchTab('teori')">6. Landasan Teori & Contoh Kasus AHP</button>
+      </nav>
+    </div>
+
+    <main>
+      <!-- TAB 1: IDENTITAS & FORM PARAMETER -->
+      <section id="tab-setup" class="tab-content active">
+        <div class="card" style="background: linear-gradient(to right, #f0f9ff, #ffffff); border-left: 4px solid var(--accent);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+            <div>
+              <h3 style="font-size: 1.05rem; color: var(--primary-dark); font-weight: 700;">Simulasi & Opsi Input Cepat</h3>
+              <p style="font-size: 0.85rem; color: var(--text-muted);">
+                Anda dapat menginput parameter secara mandiri atau menekan tombol di samping untuk memuat contoh kasus riil secara otomatis.
+              </p>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button class="btn btn-success" onclick="loadSampleData()">
+                ⚡ Muat Contoh Kasus (Studi Lokasi Pabrik)
+              </button>
+              <button class="btn btn-secondary" onclick="clearAllData()">
+                🗑️ Kosongkan Form
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">1. Identitas Responden / Evaluator Keputusan</h2>
+          </div>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px;">
+            Lengkapi identitas penilai atau pengambil keputusan yang melakukan evaluasi bobot prioritas AHP.
+          </p>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nama Lengkap Responden</label>
+              <input type="text" id="resp-nama" class="form-control" value="" placeholder="Masukkan nama responden..." oninput="updateRespondentInfo()">
+            </div>
+            <div class="form-group">
+              <label>Jabatan / Peran Pengambil Keputusan</label>
+              <input type="text" id="resp-jabatan" class="form-control" value="" placeholder="Masukkan jabatan..." oninput="updateRespondentInfo()">
+            </div>
+            <div class="form-group">
+              <label>Instansi / Perusahaan</label>
+              <input type="text" id="resp-instansi" class="form-control" value="" placeholder="Masukkan instansi/perusahaan..." oninput="updateRespondentInfo()">
+            </div>
+            <div class="form-group">
+              <label>Tanggal Pengisian Assessment</label>
+              <input type="date" id="resp-tanggal" class="form-control" value="" onchange="updateRespondentInfo()">
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">2. Tujuan Pengambilan Keputusan (Decision Goal)</h2>
+          </div>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px;">
+            Tentukan sasaran utama atau tujuan makro pengambilan keputusan yang dievaluasi oleh responden.
+          </p>
+          <div class="form-group">
+            <label>Pernyataan Tujuan Pengambilan Keputusan (Goal)</label>
+            <textarea id="decision-goal-input" class="form-control" placeholder="Tuliskan tujuan utama pengambilan keputusan di sini..." oninput="updateDecisionGoal()"></textarea>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">3. Penentuan Kriteria Keputusan yang Diisi Responden</h2>
+            <button class="btn btn-primary" onclick="addCriteria()">+ Tambah Kriteria</button>
+          </div>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px;">
+            Responden dapat menyesuaikan nama kriteria, kode, dan deskripsi fokus evaluasi. Anda dapat mengklik tombol <strong>"+ Tambah Kriteria"</strong> atau tombol hapus di setiap baris.
+          </p>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 70px;">Kode</th>
+                  <th>Nama Lengkap Kriteria</th>
+                  <th style="width: 180px;">Nama Singkat (Label Tab)</th>
+                  <th>Deskripsi Fokus Evaluasi</th>
+                  <th style="width: 70px;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="setup-criteria-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">4. Penentuan Alternatif Keputusan yang Diisi Responden</h2>
+            <button class="btn btn-primary" onclick="addAlternative()">+ Tambah Alternatif</button>
+          </div>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px;">
+            Responden dapat menyesuaikan opsi alternatif lokasi/strategi yang akan dievaluasi dan dibandingkan. Anda dapat mengklik tombol <strong>"+ Tambah Alternatif"</strong> atau tombol hapus di setiap baris.
+          </p>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 70px;">Kode</th>
+                  <th>Nama Lengkap Alternatif</th>
+                  <th style="width: 180px;">Nama Singkat (Label Chart)</th>
+                  <th style="width: 100px;">Warna Graphic</th>
+                  <th>Deskripsi Singkat Karakteristik</th>
+                  <th style="width: 70px;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="setup-alt-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: MATRIKS KRITERIA & UJI KONSISTENSI -->
+      <section id="tab-kriteria" class="tab-content">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Matriks Perbandingan Berpasangan Antar Kriteria (Pairwise Comparison)</h2>
+            <div class="legend-box">
+              <div class="legend-item"><div class="legend-color" style="background-color: var(--input-bg);"></div> Input Mandiri (Skala 1-9)</div>
+              <div class="legend-item"><div class="legend-color" style="background-color: var(--calc-bg);"></div> Nilai Resiprokal Otomatis (1/X)</div>
+              <div class="legend-item"><div class="legend-color" style="background-color: var(--summary-bg);"></div> Bobot Prioritas Eigenvector</div>
+            </div>
+          </div>
+
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px;">
+            Pilihlah preferensi perbandingan nilai segitiga atas. Sel berwarna biru muda dapat diubah; nilai resiprokal segitiga bawah (hijau muda), jumlah kolom, vektor bobot (*Eigenvector*), dan rasio konsistensi dihitung seketika secara otomatis.
+          </p>
+
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr id="criteria-matrix-thead-tr">
+                  <th>Kriteria Keputusan</th>
+                </tr>
+              </thead>
+              <tbody id="criteria-matrix-tbody"></tbody>
+              <tfoot></tfoot>
+            </table>
+          </div>
+
+          <div class="card" style="background: #f8fafc; border: 1px solid var(--border); margin-top: 16px;">
+            <h3 style="font-size: 1rem; color: var(--primary-dark); margin-bottom: 12px;">Hasil Uji Konsistensi Logis Kriteria (Logical Consistency Verification)</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+              <div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Jumlah Kriteria (n)</div>
+                <div style="font-size: 1.25rem; font-weight: 700;" id="crit-count-display">4</div>
+              </div>
+              <div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Lambda Max (&lambda; max)</div>
+                <div style="font-size: 1.25rem; font-weight: 700;" id="calc-lambda-max">0.0000</div>
+              </div>
+              <div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Consistency Index (CI)</div>
+                <div style="font-size: 1.25rem; font-weight: 700;" id="calc-ci">0.0000</div>
+              </div>
+              <div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Random Index (RI)</div>
+                <div style="font-size: 1.25rem; font-weight: 700;" id="calc-ri-display">0.9000</div>
+              </div>
+              <div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Consistency Ratio (CR)</div>
+                <div style="font-size: 1.25rem; font-weight: 700;" id="calc-cr">0.00%</div>
+              </div>
+            </div>
+            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);" id="calc-status-badge"></div>
+          </div>
+
+          <div class="scale-guide">
+            <strong>Rujukan Skala Penilaian Saaty (1 s/d 9):</strong>
+            <div class="scale-grid">
+              <div class="scale-item"><strong>1:</strong> Sama penting (Equal)</div>
+              <div class="scale-item"><strong>3:</strong> Sedikit lebih penting (Moderate)</div>
+              <div class="scale-item"><strong>5:</strong> Jelas lebih penting (Strong)</div>
+              <div class="scale-item"><strong>7:</strong> Sangat jelas lebih penting (Very Strong)</div>
+              <div class="scale-item"><strong>9:</strong> Mutlak lebih penting (Extreme)</div>
+              <div class="scale-item"><strong>2, 4, 6, 8:</strong> Nilai kompromi / antara</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: MATRIKS ALTERNATIF -->
+      <section id="tab-alternatif" class="tab-content">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Matriks Perbandingan Berpasangan Alternatif per Kriteria</h2>
+          </div>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
+            Setiap alternatif dievaluasi kinerjanya secara relatif berpasangan terhadap masing-masing kriteria keputusan.
+          </p>
+          <div id="alt-matrices-wrapper"></div>
+        </div>
+      </section>
+
+      <!-- TAB 4: SINTESIS GLOBAL & SENSITIVITAS -->
+      <section id="tab-sintesis" class="tab-content">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Matriks Sintesis Bobot Global (Global Priority Synthesis)</h2>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr id="syn-thead-row1"></tr>
+                <tr id="syn-thead-row2"></tr>
+              </thead>
+              <tbody id="synthesis-tbody"></tbody>
+              <tfoot></tfoot>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Simulasi Analisis Sensitivitas Dinamis (What-If Analysis)</h2>
+            <button class="btn btn-secondary" onclick="resetToWorkbookDefaults()">Reset Nilai Asli</button>
+          </div>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
+            Geser bobot kepentingan kriteria di bawah ini untuk melihat apakah peringkat rekomendasi berubah secara dinamis apabila prioritas manajemen bergeser.
+          </p>
+          <div id="sensitivity-sliders"></div>
+          <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);">
+            <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 12px;">Visualisasi Sensitivitas Peringkat:</h4>
+            <div class="chart-container" id="sensitivity-bars"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: DASHBOARD EKSEKUTIF -->
+      <section id="tab-dashboard" class="tab-content">
+        <div class="card" style="background: linear-gradient(to right, #eff6ff, #ffffff); border-left: 4px solid var(--primary-light);">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <h3 style="font-size: 1.1rem; color: var(--primary-dark); font-weight: 800;" id="display-goal-title">-</h3>
+              <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 4px;" id="display-respondent-meta">-</p>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button class="btn btn-primary" onclick="exportToPDF()">🖨️ Cetak / Ekspor PDF</button>
+              <button class="btn btn-success" onclick="exportToWord()">📄 Ekspor Laporan Word (.doc)</button>
+              <button class="btn btn-secondary" onclick="switchTab('setup')">Edit Identitas & Parameter</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card success">
+            <div>
+              <div class="kpi-title">Rekomendasi Keputusan Utama</div>
+              <div class="kpi-value" id="kpi-top-location">-</div>
+            </div>
+            <div class="kpi-desc" id="kpi-top-desc">Menunggu kalkulasi matriks...</div>
+          </div>
+
+          <div class="kpi-card" id="kpi-cr-card">
+            <div>
+              <div class="kpi-title">Consistency Ratio (CR) Kriteria</div>
+              <div class="kpi-value" id="kpi-cr-value">0.00%</div>
+            </div>
+            <div>
+              <span class="status-pill valid" id="kpi-cr-pill">KONSISTEN / VALID</span>
+              <div class="kpi-desc">Batas toleransi Saaty: CR &lt; 10% (0.10)</div>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div>
+              <div class="kpi-title">Kriteria Terpenting</div>
+              <div class="kpi-value" id="kpi-top-crit">-</div>
+            </div>
+            <div class="kpi-desc" id="kpi-top-crit-desc">Memiliki bobot eigenvector tertinggi</div>
+          </div>
+
+          <div class="kpi-card">
+            <div>
+              <div class="kpi-title">Total Alternatif & Kriteria</div>
+              <div class="kpi-value" id="kpi-total-summary">3 Alternatif / 4 Kriteria</div>
+            </div>
+            <div class="kpi-desc">Dekomposisi hierarki 3 tingkatan</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">1. Pemeringkatan Akhir Keputusan (Bobot Sintesis Global)</h2>
+            <button class="btn btn-secondary" onclick="resetToWorkbookDefaults()">Reset ke Data Default Matriks</button>
+          </div>
+          <div class="chart-container" id="dashboard-ranking-bars"></div>
+          <div class="table-responsive" style="margin-top: 20px;">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 80px;">Peringkat</th>
+                  <th>Alternatif Pilihan Keputusan</th>
+                  <th style="width: 160px;">Bobot Global (%)</th>
+                  <th style="width: 180px;">Status Evaluasi</th>
+                  <th>Rekomendasi Tindakan Strategis</th>
+                </tr>
+              </thead>
+              <tbody id="dashboard-ranking-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">2. Distribusi Bobot Prioritas Kriteria Keputusan</h2>
+          </div>
+          <div class="chart-container" id="criteria-bars"></div>
+        </div>
+      </section>
+
+      <!-- TAB 6: LANDASAN TEORI & CONTOH KASUS AHP -->
+      <section id="tab-teori" class="tab-content">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Landasan Ilmiah Metodologi Analytic Hierarchy Process (AHP)</h2>
+          </div>
+          <h3 style="font-size: 1.1rem; color: var(--primary); margin-bottom: 8px;">1. Konsep Dasar & Prinsip Saaty (1980)</h3>
+          <p style="margin-bottom: 14px; font-size: 0.92rem; text-align: justify;">
+            <em>Analytic Hierarchy Process</em> (AHP) dirumuskan oleh <strong>Prof. Thomas L. Saaty</strong> dari Wharton School of Business. 
+            AHP adalah metode pengambilan keputusan multikriteria (MCDM) yang mengonversi pertimbangan kualitatif pakar menjadi skala numerik yang dapat dikuantifikasi melalui perbandingan berpasangan.
+          </p>
+          <p style="margin-bottom: 16px; font-size: 0.92rem; text-align: justify;">
+            Tiga pilar metodologi AHP:
+          </p>
+          <ul style="margin-left: 24px; margin-bottom: 20px; font-size: 0.9rem;">
+            <li><strong>Dekomposisi (*Decomposition*):</strong> Menguraikan sasaran makro menjadi hierarki sasaran &rarr; kriteria &rarr; subkriteria &rarr; alternatif.</li>
+            <li><strong>Pertimbangan Komparatif (*Comparative Judgments*):</strong> Melakukan perbandingan berpasangan antar elemen setingkat menggunakan skala Saaty 1–9.</li>
+            <li><strong>Sintesis Prioritas (*Synthesis of Priorities*):</strong> Menghitung nilai *eigenvector* matriks perbandingan lalu mengalikan bobot lokal dengan bobot kriteria global.</li>
+          </ul>
+
+          <h3 style="font-size: 1.1rem; color: var(--primary); margin-bottom: 8px;">2. Rumusan Matematis Uji Konsistensi Logika</h3>
+          <p style="margin-bottom: 12px; font-size: 0.92rem;">
+            Kekuatan utama AHP terletak pada kemampuannya mengukur dan mengoreksi inkonsistensi pertimbangan manusia:
+          </p>
+          <div class="formula-box">
+1. Eigenvalue Maksimum (λ max):
+   λ_max = Σ [ (Jumlah Kolom_j) × (Bobot Eigenvector_j) ]
+
+2. Consistency Index (CI):
+   CI = (λ_max - n) / (n - 1)
+
+3. Consistency Ratio (CR):
+   CR = CI / RI
+
+Ambang Batas Keabsahan:
+- Jika CR < 0.10 (10%) : Pertimbangan KONSISTEN & VALID secara ilmiah.
+- Jika CR ≥ 0.10 (10%) : Pertimbangan INKONSISTEN; matriks perbandingan wajib ditinjau ulang.
+          </div>
+
+          <h3 style="font-size: 1.1rem; color: var(--primary); margin-top: 20px; margin-bottom: 8px;">3. Tabel Nilai Random Index (RI) Standar Saaty</h3>
+          <div class="table-responsive" style="max-width: 700px;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Ukuran Matriks (n)</th>
+                  <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="font-weight: 700;">Nilai RI</td>
+                  <td class="center">0.00</td>
+                  <td class="center">0.00</td>
+                  <td class="center">0.58</td>
+                  <td class="center cell-summary">0.90</td>
+                  <td class="center">1.12</td>
+                  <td class="center">1.24</td>
+                  <td class="center">1.32</td>
+                  <td class="center">1.41</td>
+                  <td class="center">1.45</td>
+                  <td class="center">1.49</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">4. Contoh Langkah Konkret Pengambilan Keputusan dengan AHP</h2>
+          </div>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px;">
+            Berikut adalah simulasi ilmiah perhitungan AHP secara manual berbasis contoh kasus riil dengan 3 Kriteria dan 3 Alternatif:
+          </p>
+
+          <div class="example-box">
+            <h4 style="color: var(--primary-dark); font-size: 1rem; margin-bottom: 8px;">Studi Kasus: Pemilihan Vendor Perangkat Pembelajaran Digital</h4>
+            <p style="margin-bottom: 12px; text-align: justify;">
+              <strong>Tujuan ($G_0$):</strong> Memilih vendor terbaik antara Vendor A, Vendor B, dan Vendor C.<br>
+              <strong>3 Kriteria Utama:</strong> Biaya ($K_1$), Kualitas Perangkat ($K_2$), dan Layanan Purna Jual ($K_3$).
+            </p>
+
+            <strong style="color: var(--primary);">Langkah A: Matriks Perbandingan Berpasangan Kriteria</strong>
+            <p style="margin: 4px 0 10px 0;">Misalkan responden/evaluator memberikan tingkat kepentingan berikut:</p>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Kriteria</th>
+                    <th>Biaya (K1)</th>
+                    <th>Kualitas (K2)</th>
+                    <th>Layanan (K3)</th>
+                    <th>Jumlah Kolom</th>
+                    <th>Eigenvector (Bobot Wj)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Biaya (K1)</strong></td>
+                    <td class="center">1.000</td>
+                    <td class="center">3.000</td>
+                    <td class="center">5.000</td>
+                    <td class="center">-</td>
+                    <td class="center cell-summary">0.6370 (63.70%)</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Kualitas (K2)</strong></td>
+                    <td class="center">0.333</td>
+                    <td class="center">1.000</td>
+                    <td class="center">2.000</td>
+                    <td class="center">-</td>
+                    <td class="center cell-summary">0.2258 (22.58%)</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Layanan (K3)</strong></td>
+                    <td class="center">0.200</td>
+                    <td class="center">0.500</td>
+                    <td class="center">1.000</td>
+                    <td class="center">-</td>
+                    <td class="center cell-summary">0.1372 (13.72%)</td>
+                  </tr>
+                  <tr style="font-weight: 700; background: #f8fafc;">
+                    <td>Jumlah Kolom</td>
+                    <td class="center">1.533</td>
+                    <td class="center">4.500</td>
+                    <td class="center">8.000</td>
+                    <td class="center">14.033</td>
+                    <td class="center">1.0000 (100%)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <strong style="color: var(--primary); display: block; margin-top: 14px;">Langkah B: Pengujian Konsistensi Kriteria (Uji CR)</strong>
+            <div class="formula-box" style="margin-top: 6px;">
+1. λ_max = (1.5333 × 0.6370) + (4.5000 × 0.2258) + (8.0000 × 0.1372)
+         = 0.9767 + 1.0161 + 1.0976 = 3.0904
+
+2. Consistency Index (CI) = (3.0904 - 3) / (3 - 1) = 0.0452
+
+3. Consistency Ratio (CR) = 0.0452 / 0.58 (Nilai RI n=3) = 0.0779 (7.79%)
+
+Status: CR = 7.79% < 10% -> PERTIMBANGAN KONSISTEN & VALID!
+            </div>
+
+            <strong style="color: var(--primary); display: block; margin-top: 14px;">Langkah C: Prioritas Lokal Alternatif per Kriteria & Sintesis Akhir</strong>
+            <p style="margin: 4px 0 10px 0;">Nilai evaluasi kinerja relatif vendor terhadap masing-masing kriteria disintesiskan:</p>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th rowspan="2">Kriteria Keputusan</th>
+                    <th rowspan="2">Bobot Kriteria ($W_j$)</th>
+                    <th colspan="3">Prioritas Lokal ($L_{ij}$)</th>
+                    <th colspan="3">Kontribusi Bobot Global ($W_j \times L_{ij}$)</th>
+                  </tr>
+                  <tr>
+                    <th>Vendor A</th>
+                    <th>Vendor B</th>
+                    <th>Vendor C</th>
+                    <th>Vendor A</th>
+                    <th>Vendor B</th>
+                    <th>Vendor C</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Biaya (K1)</td>
+                    <td class="center">0.6370</td>
+                    <td class="center">0.1047</td>
+                    <td class="center">0.6370</td>
+                    <td class="center">0.2583</td>
+                    <td class="center">0.0667</td>
+                    <td class="center">0.4058</td>
+                    <td class="center">0.1645</td>
+                  </tr>
+                  <tr>
+                    <td>Kualitas (K2)</td>
+                    <td class="center">0.2258</td>
+                    <td class="center">0.6554</td>
+                    <td class="center">0.2497</td>
+                    <td class="center">0.0949</td>
+                    <td class="center">0.1480</td>
+                    <td class="center">0.0564</td>
+                    <td class="center">0.0214</td>
+                  </tr>
+                  <tr>
+                    <td>Layanan (K3)</td>
+                    <td class="center">0.1372</td>
+                    <td class="center">0.1634</td>
+                    <td class="center">0.2970</td>
+                    <td class="center">0.5396</td>
+                    <td class="center">0.0224</td>
+                    <td class="center">0.0407</td>
+                    <td class="center">0.0740</td>
+                  </tr>
+                  <tr class="cell-summary">
+                    <td>TOTAL BOBOT GLOBAL SINTESIS</td>
+                    <td class="center">100.0%</td>
+                    <td class="center">-</td>
+                    <td class="center">-</td>
+                    <td class="center">-</td>
+                    <td class="center" style="font-size:1rem; color:var(--text);">0.2371</td>
+                    <td class="center" style="font-size:1rem; color:var(--success);">0.5029</td>
+                    <td class="center" style="font-size:1rem; color:var(--text);">0.2600</td>
+                  </tr>
+                  <tr style="background:#e2e8f0; font-weight:800;">
+                    <td colspan="5">PERSENTASE HASIL AKHIR (%)</td>
+                    <td class="center">23.71%</td>
+                    <td class="center" style="color:var(--success);">50.29%</td>
+                    <td class="center">26.00%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p style="margin-top: 10px; font-weight: 700; color: var(--success);">
+              Kesimpulan Rekomendasi AHP: Vendor B terpilih sebagai keputusan optimal dengan skor sintesis tertinggi 50.29%.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // --- FUNGSIONALITAS LOGIN RESPONDEN & AUTH ---
+    function handleLogin(e) {
+      e.preventDefault();
+      const usernameInput = document.getElementById('login-username').value.trim();
+      const passwordInput = document.getElementById('login-password').value;
+      const errorMsg = document.getElementById('login-error-msg');
+
+      if (!usernameInput) {
+        errorMsg.textContent = 'Nama responden tidak boleh kosong!';
+        errorMsg.style.display = 'block';
+        return;
+      }
+
+      if (passwordInput !== 'leadership') {
+        errorMsg.textContent = 'Password salah! Pastikan kata sandi adalah "leadership".';
+        errorMsg.style.display = 'block';
+        return;
+      }
+
+      // Autentikasi Berhasil
+      errorMsg.style.display = 'none';
+      document.getElementById('login-overlay').style.display = 'none';
+      document.getElementById('app-container').style.display = 'block';
+
+      // Otomatis update nama responden dari login
+      respondentInfo.nama = usernameInput;
+      document.getElementById('resp-nama').value = usernameInput;
+      document.getElementById('header-user-display').textContent = usernameInput;
+
+      // Set tanggal default pengisian jika masih kosong
+      if (!respondentInfo.tanggal) {
+        const today = new Date().toISOString().split('T')[0];
+        respondentInfo.tanggal = today;
+        document.getElementById('resp-tanggal').value = today;
+      }
+
+      renderApp();
+    }
+
+    function handleLogout() {
+      document.getElementById('login-username').value = '';
+      document.getElementById('login-password').value = '';
+      document.getElementById('login-error-msg').style.display = 'none';
+      document.getElementById('app-container').style.display = 'none';
+      document.getElementById('login-overlay').style.display = 'flex';
+    }
+
+    // --- STRUKTUR DATA UTAMA & STATE INITIAL ---
+    const RI_TABLE = { 1: 0.0, 2: 0.0, 3: 0.58, 4: 0.90, 5: 1.12, 6: 1.24, 7: 1.32, 8: 1.41, 9: 1.45, 10: 1.49 };
+    const COLOR_PALETTE = ['#dc2626', '#059669', '#d97706', '#2563eb', '#7c3aed', '#db2777', '#0891b2', '#ea580c', '#16a34a', '#ca8a04'];
+
+    let respondentInfo = {
+      nama: '',
+      jabatan: '',
+      instansi: '',
+      tanggal: ''
+    };
+
+    let decisionGoal = '';
+
+    let criteriaNames = [
+      { id: 'K1', name: '', short: 'K1', desc: '' },
+      { id: 'K2', name: '', short: 'K2', desc: '' },
+      { id: 'K3', name: '', short: 'K3', desc: '' },
+      { id: 'K4', name: '', short: 'K4', desc: '' }
+    ];
+
+    let alternatives = [
+      { id: 'A', name: '', short: 'Alt A', color: '#dc2626', desc: '' },
+      { id: 'B', name: '', short: 'Alt B', color: '#059669', desc: '' },
+      { id: 'C', name: '', short: 'Alt C', color: '#d97706', desc: '' }
+    ];
+
+    const defaultCritPairwise = {
+      '0-1': 3,
+      '0-2': 4,
+      '0-3': 7,
+      '1-2': 3,
+      '1-3': 4,
+      '2-3': 3
+    };
+
+    const defaultAltPairwise = {
+      0: { '0-1': 1/3, '0-2': 1/5, '1-2': 1/2 },
+      1: { '0-1': 2, '0-2': 5, '1-2': 3 },
+      2: { '0-1': 1/2, '0-2': 1/3, '1-2': 1/2 },
+      3: { '0-1': 1/3, '0-2': 1/2, '1-2': 2 }
+    };
+
+    let currentCritPairwise = { ...defaultCritPairwise };
+    let currentAltPairwise = JSON.parse(JSON.stringify(defaultAltPairwise));
+    let manualWeights = null;
+
+    const saatyOptions = [
+      { val: 9, label: '9 - Mutlak Lebih Penting' },
+      { val: 8, label: '8 - Nilai Antara 7 & 9' },
+      { val: 7, label: '7 - Sangat Jelas Lebih Penting' },
+      { val: 6, label: '6 - Nilai Antara 5 & 7' },
+      { val: 5, label: '5 - Jelas Lebih Penting' },
+      { val: 4, label: '4 - Nilai Antara 3 & 5' },
+      { val: 3, label: '3 - Sedikit Lebih Penting' },
+      { val: 2, label: '2 - Nilai Antara 1 & 3' },
+      { val: 1, label: '1 - Sama Penting (Equal)' },
+      { val: 1/2, label: '1/2 - Nilai Antara 1 & 1/3' },
+      { val: 1/3, label: '1/3 - Sedikit Kurang Penting' },
+      { val: 1/4, label: '1/4 - Nilai Antara 1/3 & 1/5' },
+      { val: 1/5, label: '1/5 - Jelas Kurang Penting' },
+      { val: 1/6, label: '1/6 - Nilai Antara 1/5 & 1/7' },
+      { val: 1/7, label: '1/7 - Sangat Jelas Kurang Penting' },
+      { val: 1/8, label: '1/8 - Nilai Antara 1/7 & 1/9' },
+      { val: 1/9, label: '1/9 - Mutlak Kurang Penting' }
+    ];
+
+    function formatNumber(num, decimals = 4) {
+      if (isNaN(num) || num === null) return '-';
+      return Number(num).toFixed(decimals);
+    }
+
+    function formatFraction(val) {
+      const eps = 0.005;
+      for (let d = 1; d <= 9; d++) {
+        const n = Math.round(val * d);
+        if (Math.abs(val - n / d) < eps) {
+          return d === 1 ? `${n}` : `${n}/${d}`;
+        }
+      }
+      return val.toFixed(3);
+    }
+
+    function getAltLetter(index) {
+      let label = '';
+      let i = index;
+      while (i >= 0) {
+        label = String.fromCharCode(65 + (i % 26)) + label;
+        i = Math.floor(i / 26) - 1;
+      }
+      return label;
+    }
+
+    function loadSampleData() {
+      const loggedUser = respondentInfo.nama || 'Iman N Bajuasijadji';
+      respondentInfo = {
+        nama: loggedUser,
+        jabatan: 'Senior HR & Management Consultant / Tim Asessor MCDM',
+        instansi: 'PT Konsultan Strategis Indonesia',
+        tanggal: '2026-11-08'
+      };
+
+      decisionGoal = 'Pemilihan Lokasi Pabrik Baru Manufaktur Modern yang Optimal Berdasarkan Efisiensi Biaya, Akses Logistik, Ketersediaan SDM, dan Mitigasi Risiko';
+
+      criteriaNames = [
+        { id: 'K1', name: 'Biaya Operasional & UMR (K1)', short: 'Biaya (K1)', desc: 'Faktor paling dominan dalam struktur biaya jangka panjang' },
+        { id: 'K2', name: 'Aksesibilitas Logistik & Tol (K2)', short: 'Logistik (K2)', desc: 'Penentu kelancaran pasokan bahan baku dan pengiriman produk' },
+        { id: 'K3', name: 'Ketersediaan SDM Teknik (K3)', short: 'SDM (K3)', desc: 'Mendukung keandalan operasi industri manufaktur modern' },
+        { id: 'K4', name: 'Risiko Bencana & Sosial (K4)', short: 'Risiko (K4)', desc: 'Penjaga keberlanjutan bisnis, stabilitas buruh, dan kepatuhan regulasi' }
+      ];
+
+      alternatives = [
+        { id: 'A', name: 'Karawang (Alternatif A)', short: 'Karawang', color: '#dc2626', desc: 'Keunggulan logistik tinggi namun beban upah UMR dan biaya lahan sangat mahal' },
+        { id: 'B', name: 'Semarang (Alternatif B)', short: 'Semarang', color: '#059669', desc: 'LOKASI TERPILIH: Efisiensi modal dan UMR tinggi, akses tol Trans Jawa prima' },
+        { id: 'C', name: 'Surabaya (Alternatif C)', short: 'Surabaya', color: '#d97706', desc: 'SDM teknik melimpah, namun biaya distribusi logistik ke pasar barat lebih tinggi' }
+      ];
+
+      document.getElementById('resp-nama').value = respondentInfo.nama;
+      document.getElementById('resp-jabatan').value = respondentInfo.jabatan;
+      document.getElementById('resp-instansi').value = respondentInfo.instansi;
+      document.getElementById('resp-tanggal').value = respondentInfo.tanggal;
+      document.getElementById('decision-goal-input').value = decisionGoal;
+
+      currentCritPairwise = { ...defaultCritPairwise };
+      currentAltPairwise = JSON.parse(JSON.stringify(defaultAltPairwise));
+      manualWeights = null;
+
+      renderSetupForms();
+      renderApp();
+    }
+
+    function clearAllData() {
+      const loggedUser = respondentInfo.nama;
+      respondentInfo = { nama: loggedUser, jabatan: '', instansi: '', tanggal: '' };
+      decisionGoal = '';
+      criteriaNames = [
+        { id: 'K1', name: '', short: 'K1', desc: '' },
+        { id: 'K2', name: '', short: 'K2', desc: '' },
+        { id: 'K3', name: '', short: 'K3', desc: '' },
+        { id: 'K4', name: '', short: 'K4', desc: '' }
+      ];
+      alternatives = [
+        { id: 'A', name: '', short: 'Alt A', color: '#dc2626', desc: '' },
+        { id: 'B', name: '', short: 'Alt B', color: '#059669', desc: '' },
+        { id: 'C', name: '', short: 'Alt C', color: '#d97706', desc: '' }
+      ];
+
+      document.getElementById('resp-nama').value = loggedUser;
+      document.getElementById('resp-jabatan').value = '';
+      document.getElementById('resp-instansi').value = '';
+      document.getElementById('resp-tanggal').value = '';
+      document.getElementById('decision-goal-input').value = '';
+
+      currentCritPairwise = {};
+      currentAltPairwise = {};
+      manualWeights = null;
+
+      renderSetupForms();
+      renderApp();
+    }
+
+    function addCriteria() {
+      const newIdx = criteriaNames.length + 1;
+      criteriaNames.push({
+        id: `K${newIdx}`,
+        name: `Kriteria ${newIdx}`,
+        short: `K${newIdx}`,
+        desc: `Deskripsi kriteria ${newIdx}`
+      });
+      manualWeights = null;
+      renderSetupForms();
+      renderApp();
+    }
+
+    function removeCriteria(idx) {
+      if (criteriaNames.length <= 2) {
+        alert('Jumlah kriteria minimal adalah 2.');
+        return;
+      }
+      if (idx === undefined) idx = criteriaNames.length - 1;
+      
+      const oldNum = criteriaNames.length;
+      criteriaNames.splice(idx, 1);
+      criteriaNames.forEach((c, i) => { c.id = `K${i + 1}`; });
+
+      const newCritPairwise = {};
+      for (let i = 0; i < oldNum; i++) {
+        for (let j = i + 1; j < oldNum; j++) {
+          if (i === idx || j === idx) continue;
+          const newI = i > idx ? i - 1 : i;
+          const newJ = j > idx ? j - 1 : j;
+          if (currentCritPairwise[`${i}-${j}`] !== undefined) {
+            newCritPairwise[`${newI}-${newJ}`] = currentCritPairwise[`${i}-${j}`];
+          }
+        }
+      }
+      currentCritPairwise = newCritPairwise;
+
+      const newAltPairwise = {};
+      let newK = 0;
+      for (let k = 0; k < oldNum; k++) {
+        if (k === idx) continue;
+        newAltPairwise[newK] = currentAltPairwise[k] || {};
+        newK++;
+      }
+      currentAltPairwise = newAltPairwise;
+
+      manualWeights = null;
+      renderSetupForms();
+      renderApp();
+    }
+
+    function addAlternative() {
+      const newIdx = alternatives.length;
+      const letter = getAltLetter(newIdx);
+      const color = COLOR_PALETTE[newIdx % COLOR_PALETTE.length];
+      alternatives.push({
+        id: letter,
+        name: `Alternatif ${letter}`,
+        short: `Alt ${letter}`,
+        color: color,
+        desc: `Deskripsi singkat alternatif ${letter}`
+      });
+      manualWeights = null;
+      renderSetupForms();
+      renderApp();
+    }
+
+    function removeAlternative(idx) {
+      if (alternatives.length <= 2) {
+        alert('Jumlah alternatif minimal adalah 2.');
+        return;
+      }
+      if (idx === undefined) idx = alternatives.length - 1;
+
+      const oldNum = alternatives.length;
+      alternatives.splice(idx, 1);
+      alternatives.forEach((a, i) => { a.id = getAltLetter(i); });
+
+      criteriaNames.forEach((_, k) => {
+        const oldObj = currentAltPairwise[k] || {};
+        const newObj = {};
+        for (let i = 0; i < oldNum; i++) {
+          for (let j = i + 1; j < oldNum; j++) {
+            if (i === idx || j === idx) continue;
+            const newI = i > idx ? i - 1 : i;
+            const newJ = j > idx ? j - 1 : j;
+            if (oldObj[`${i}-${j}`] !== undefined) {
+              newObj[`${newI}-${newJ}`] = oldObj[`${i}-${j}`];
+            }
+          }
+        }
+        currentAltPairwise[k] = newObj;
+      });
+
+      manualWeights = null;
+      renderSetupForms();
+      renderApp();
+    }
+
+    function computeAHPMatrix(size, pairwiseObj) {
+      if (!pairwiseObj) pairwiseObj = {};
+      const matrix = Array(size).fill(0).map(() => Array(size).fill(1));
+
+      for (let i = 0; i < size; i++) {
+        for (let j = i + 1; j < size; j++) {
+          const key = `${i}-${j}`;
+          const val = pairwiseObj[key] !== undefined ? pairwiseObj[key] : 1;
+          matrix[i][j] = val;
+          matrix[j][i] = 1 / val;
+        }
+      }
+
+      const colSums = Array(size).fill(0);
+      for (let j = 0; j < size; j++) {
+        for (let i = 0; i < size; i++) {
+          colSums[j] += matrix[i][j];
+        }
+      }
+
+      const normMatrix = Array(size).fill(0).map(() => Array(size).fill(0));
+      const weights = Array(size).fill(0);
+      const rowNormSums = Array(size).fill(0);
+
+      for (let i = 0; i < size; i++) {
+        let rSum = 0;
+        for (let j = 0; j < size; j++) {
+          const normVal = matrix[i][j] / colSums[j];
+          normMatrix[i][j] = normVal;
+          rSum += normVal;
+        }
+        rowNormSums[i] = rSum;
+        weights[i] = rSum / size;
+      }
+
+      let lambdaMax = 0;
+      for (let j = 0; j < size; j++) {
+        lambdaMax += colSums[j] * weights[j];
+      }
+
+      const ci = size > 1 ? (lambdaMax - size) / (size - 1) : 0;
+      const ri = RI_TABLE[size] || (size > 10 ? 1.49 : 0.90);
+      const cr = ri > 0 ? ci / ri : 0;
+
+      return {
+        size,
+        matrix,
+        colSums,
+        normMatrix,
+        rowNormSums,
+        weights,
+        lambdaMax,
+        ci,
+        ri,
+        cr,
+        isValid: cr < 0.10
+      };
+    }
+
+    function updateRespondentInfo() {
+      respondentInfo.nama = document.getElementById('resp-nama').value;
+      respondentInfo.jabatan = document.getElementById('resp-jabatan').value;
+      respondentInfo.instansi = document.getElementById('resp-instansi').value;
+      respondentInfo.tanggal = document.getElementById('resp-tanggal').value;
+      document.getElementById('header-user-display').textContent = respondentInfo.nama || '-';
+      renderApp();
+    }
+
+    function updateDecisionGoal() {
+      decisionGoal = document.getElementById('decision-goal-input').value;
+      renderApp();
+    }
+
+    function renderSetupForms() {
+      const critTbody = document.getElementById('setup-criteria-tbody');
+      critTbody.innerHTML = '';
+      criteriaNames.forEach((crit, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="center" style="font-weight:700;">${crit.id}</td>
+          <td><input type="text" class="form-control" value="${crit.name}" placeholder="Nama Kriteria..." oninput="updateCriteriaConfig(${i}, 'name', this.value)"></td>
+          <td><input type="text" class="form-control" value="${crit.short}" placeholder="Label Singkat..." oninput="updateCriteriaConfig(${i}, 'short', this.value)"></td>
+          <td><input type="text" class="form-control" value="${crit.desc}" placeholder="Deskripsi Evaluasi..." oninput="updateCriteriaConfig(${i}, 'desc', this.value)"></td>
+          <td class="center">
+            <button class="btn btn-danger" style="padding: 4px 8px; font-size: 0.75rem;" onclick="removeCriteria(${i})" title="Hapus Kriteria Ini">🗑️</button>
+          </td>
+        `;
+        critTbody.appendChild(tr);
+      });
+
+      const altTbody = document.getElementById('setup-alt-tbody');
+      altTbody.innerHTML = '';
+      alternatives.forEach((alt, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="center" style="font-weight:700;">${alt.id}</td>
+          <td><input type="text" class="form-control" value="${alt.name}" placeholder="Nama Alternatif..." oninput="updateAltConfig(${i}, 'name', this.value)"></td>
+          <td><input type="text" class="form-control" value="${alt.short}" placeholder="Label Chart..." oninput="updateAltConfig(${i}, 'short', this.value)"></td>
+          <td class="center"><input type="color" class="form-control" value="${alt.color}" style="height:38px; padding:2px;" onchange="updateAltConfig(${i}, 'color', this.value)"></td>
+          <td><input type="text" class="form-control" value="${alt.desc}" placeholder="Deskripsi Alternatif..." oninput="updateAltConfig(${i}, 'desc', this.value)"></td>
+          <td class="center">
+            <button class="btn btn-danger" style="padding: 4px 8px; font-size: 0.75rem;" onclick="removeAlternative(${i})" title="Hapus Alternatif Ini">🗑️</button>
+          </td>
+        `;
+        altTbody.appendChild(tr);
+      });
+    }
+
+    function updateCriteriaConfig(idx, field, val) {
+      criteriaNames[idx][field] = val;
+      renderApp();
+    }
+
+    function updateAltConfig(idx, field, val) {
+      alternatives[idx][field] = val;
+      renderApp();
+    }
+
+    function renderApp() {
+      const numCrit = criteriaNames.length;
+      const numAlt = alternatives.length;
+
+      const displayNama = respondentInfo.nama || 'Belum Diisi';
+      const displayInstansi = respondentInfo.instansi || 'Belum Diisi';
+      const displayJabatan = respondentInfo.jabatan || 'Belum Diisi';
+      const displayTanggal = respondentInfo.tanggal || 'Belum Diisi';
+      const displayGoal = decisionGoal || 'Belum Ditentukan';
+
+      document.getElementById('header-subtitle').innerHTML = `
+        Implementasi AHP untuk: <strong>${displayGoal}</strong>. Evaluator: <strong>${displayNama}</strong> (${displayInstansi})
+      `;
+      document.getElementById('display-goal-title').textContent = `Tujuan Keputusan: ${displayGoal}`;
+      document.getElementById('display-respondent-meta').textContent = `Responden: ${displayNama} | ${displayJabatan} | ${displayInstansi} | Tanggal: ${displayTanggal}`;
+
+      const critResult = computeAHPMatrix(numCrit, currentCritPairwise);
+
+      const altResults = [];
+      for (let k = 0; k < numCrit; k++) {
+        if (!currentAltPairwise[k]) currentAltPairwise[k] = {};
+        altResults.push(computeAHPMatrix(numAlt, currentAltPairwise[k]));
+      }
+
+      const globalWeights = Array(numAlt).fill(0);
+      for (let a = 0; a < numAlt; a++) {
+        for (let k = 0; k < numCrit; k++) {
+          globalWeights[a] += critResult.weights[k] * altResults[k].weights[a];
+        }
+      }
+
+      renderDashboard(critResult, altResults, globalWeights);
+      renderCriteriaMatrix(critResult);
+      renderAllAlternativeMatrices(altResults);
+      renderSynthesisTab(critResult, altResults, globalWeights);
+      renderSensitivitySliders(critResult.weights, altResults);
+    }
+
+    function renderDashboard(critResult, altResults, globalWeights) {
+      const numCrit = criteriaNames.length;
+      const numAlt = alternatives.length;
+
+      document.getElementById('kpi-total-summary').textContent = `${numAlt} Alternatif / ${numCrit} Kriteria`;
+
+      const ranked = alternatives.map((alt, idx) => ({
+        ...alt,
+        name: alt.name || `Alternatif ${alt.id}`,
+        short: alt.short || `Alt ${alt.id}`,
+        desc: alt.desc || 'Deskripsi belum diisi',
+        idx,
+        weight: globalWeights[idx] || 0
+      })).sort((a, b) => b.weight - a.weight);
+
+      const top = ranked[0] || { short: '-', weight: 0, desc: '-' };
+      document.getElementById('kpi-top-location').textContent = `${top.short} (${(top.weight * 100).toFixed(1)}%)`;
+      document.getElementById('kpi-top-desc').textContent = top.desc;
+
+      const crPct = (critResult.cr * 100).toFixed(2);
+      document.getElementById('kpi-cr-value').textContent = `${crPct}%`;
+      const crPill = document.getElementById('kpi-cr-pill');
+      const crCard = document.getElementById('kpi-cr-card');
+
+      if (critResult.isValid) {
+        crPill.className = 'status-pill valid';
+        crPill.textContent = 'KONSISTEN / VALID (CR < 10%)';
+        crCard.className = 'kpi-card success';
+      } else {
+        crPill.className = 'status-pill invalid';
+        crPill.textContent = 'INKONSISTEN (CR ≥ 10%)';
+        crCard.className = 'kpi-card danger';
+      }
+
+      let maxCritIdx = 0;
+      let maxCritW = 0;
+      critResult.weights.forEach((w, i) => {
+        if (w > maxCritW) {
+          maxCritW = w;
+          maxCritIdx = i;
+        }
+      });
+      const topCritName = criteriaNames[maxCritIdx] ? (criteriaNames[maxCritIdx].short || `Kriteria ${maxCritIdx+1}`) : '-';
+      document.getElementById('kpi-top-crit').textContent = `${topCritName} (${(maxCritW * 100).toFixed(1)}%)`;
+
+      const rankingBarsContainer = document.getElementById('dashboard-ranking-bars');
+      rankingBarsContainer.innerHTML = '';
+      ranked.forEach((item, rIdx) => {
+        const pct = (item.weight * 100).toFixed(2);
+        const barDiv = document.createElement('div');
+        barDiv.className = 'bar-wrapper';
+        barDiv.innerHTML = `
+          <div class="bar-label">#${rIdx + 1} ${item.short}</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width: ${pct}%; background-color: ${item.color || '#3b82f6'};">
+              ${pct}%
+            </div>
+          </div>
+          <div class="bar-value">${pct}%</div>
+        `;
+        rankingBarsContainer.appendChild(barDiv);
+      });
+
+      const tbody = document.getElementById('dashboard-ranking-tbody');
+      tbody.innerHTML = '';
+      ranked.forEach((item, rIdx) => {
+        const tr = document.createElement('tr');
+        const isWinner = rIdx === 0;
+        tr.style.backgroundColor = isWinner ? '#ecfdf5' : '#ffffff';
+        tr.innerHTML = `
+          <td class="center" style="font-weight: 800; font-size: 1.1rem; color: ${isWinner ? 'var(--success)' : 'inherit'};">${rIdx + 1}</td>
+          <td style="font-weight: 700;">${item.name}</td>
+          <td class="center" style="font-weight: 800; font-size: 1rem;">${(item.weight * 100).toFixed(2)}%</td>
+          <td>
+            <span class="status-pill ${isWinner ? 'valid' : 'warning'}">
+              ${isWinner ? 'PILIHAN UTAMA (Peringkat 1)' : (rIdx === 1 ? 'Pilihan Cadangan' : 'Tidak Direkomendasikan')}
+            </span>
+          </td>
+          <td style="font-size: 0.85rem; color: var(--text-muted);">${item.desc}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const critBarsContainer = document.getElementById('criteria-bars');
+      critBarsContainer.innerHTML = '';
+      criteriaNames.forEach((crit, i) => {
+        const labelText = crit.short || `Kriteria ${i+1}`;
+        const pct = (critResult.weights[i] * 100).toFixed(2);
+        const bar = document.createElement('div');
+        bar.className = 'bar-wrapper';
+        bar.innerHTML = `
+          <div class="bar-label" title="${crit.name || labelText}">${labelText}</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width: ${pct}%; background-color: var(--primary);">
+              ${pct}%
+            </div>
+          </div>
+          <div class="bar-value">${pct}%</div>
+        `;
+        critBarsContainer.appendChild(bar);
+      });
+    }
+
+    function renderCriteriaMatrix(critResult) {
+      const numCrit = criteriaNames.length;
+      const theadTr = document.getElementById('criteria-matrix-thead-tr');
+      theadTr.innerHTML = `<th>Kriteria Keputusan</th>` + 
+        criteriaNames.map((c, idx) => `<th>${c.short || ('K' + (idx+1))}</th>`).join('') + 
+        `<th>Jumlah Baris Norm.</th><th>Eigenvector (Bobot)</th><th>Persentase (%)</th>`;
+
+      const tbody = document.getElementById('criteria-matrix-tbody');
+      tbody.innerHTML = '';
+
+      for (let i = 0; i < numCrit; i++) {
+        const tr = document.createElement('tr');
+        const critDisplayName = criteriaNames[i].name || `Kriteria ${i+1} (${criteriaNames[i].id})`;
+        let html = `<td style="font-weight: 700;">${critDisplayName}</td>`;
+
+        for (let j = 0; j < numCrit; j++) {
+          if (i === j) {
+            html += `<td class="center" style="background:#f1f5f9; font-weight:700;">1</td>`;
+          } else if (i < j) {
+            const key = `${i}-${j}`;
+            const currentVal = currentCritPairwise[key] !== undefined ? currentCritPairwise[key] : 1;
+            html += `
+              <td class="cell-input">
+                <select class="ahp-select" onchange="updateCriteriaPairwise('${key}', this.value)">
+                  ${saatyOptions.map(opt => `
+                    <option value="${opt.val}" ${Math.abs(opt.val - currentVal) < 0.001 ? 'selected' : ''}>
+                      ${opt.label}
+                    </option>
+                  `).join('')}
+                </select>
+              </td>
+            `;
+          } else {
+            const val = critResult.matrix[i][j];
+            html += `<td class="center cell-calc">${formatFraction(val)} <span style="font-size:0.75rem; color:var(--text-muted);">(${val.toFixed(3)})</span></td>`;
+          }
+        }
+
+        html += `<td class="center" style="font-weight:600;">${critResult.rowNormSums[i].toFixed(4)}</td>`;
+        html += `<td class="center cell-summary">${critResult.weights[i].toFixed(4)}</td>`;
+        html += `<td class="center cell-summary" style="color:var(--primary); font-size:0.95rem;">${(critResult.weights[i] * 100).toFixed(2)}%</td>`;
+        tr.innerHTML = html;
+        tbody.appendChild(tr);
+      }
+
+      const tfootObj = document.querySelector('#tab-kriteria table tfoot');
+      if (tfootObj) {
+        let footHtml = `<tr style="background-color: #f8fafc; font-weight: 700;"><td style="font-weight: 700;">Jumlah Kolom (Sum)</td>`;
+        for (let j = 0; j < numCrit; j++) {
+          footHtml += `<td class="center">${critResult.colSums[j].toFixed(3)}</td>`;
+        }
+        footHtml += `<td class="center">${numCrit.toFixed(3)}</td><td class="center">1.000</td><td class="center">100.0%</td></tr>`;
+        tfootObj.innerHTML = footHtml;
+      }
+
+      document.getElementById('crit-count-display').textContent = numCrit;
+      document.getElementById('calc-lambda-max').textContent = critResult.lambdaMax.toFixed(4);
+      document.getElementById('calc-ci').textContent = critResult.ci.toFixed(4);
+      document.getElementById('calc-ri-display').textContent = critResult.ri.toFixed(4);
+      const crVal = (critResult.cr * 100).toFixed(2);
+      document.getElementById('calc-cr').textContent = `${crVal}%`;
+
+      const statusBox = document.getElementById('calc-status-badge');
+      if (critResult.isValid) {
+        statusBox.innerHTML = `
+          <span class="status-pill valid" style="font-size:0.9rem; padding: 6px 14px;">
+            ✓ KONSISTENSI DITERIMA: Matriks Valid (CR = ${crVal}% &lt; 10%)
+          </span>
+          <p style="font-size: 0.85rem; color: var(--success); margin-top: 6px;">
+            Pertimbangan komparatif memenuhi standar konsistensi matematis Saaty. Hasil bobot siap digunakan untuk sintesis.
+          </p>
+        `;
+      } else {
+        statusBox.innerHTML = `
+          <span class="status-pill invalid" style="font-size:0.9rem; padding: 6px 14px;">
+            ⚠ PERINGATAN: Matriks Inkonsisten (CR = ${crVal}% &ge; 10%)
+          </span>
+          <p style="font-size: 0.85rem; color: var(--danger); margin-top: 6px;">
+            Terdapat kontradiksi dalam preferensi berpasangan (misal: jika A > B dan B > C, namun C dinilai > A). Silakan sesuaikan kembali nilai segitiga atas.
+          </p>
+        `;
+      }
+    }
+
+    function updateCriteriaPairwise(key, value) {
+      currentCritPairwise[key] = parseFloat(value);
+      renderApp();
+    }
+
+    function renderAllAlternativeMatrices(altResults) {
+      const container = document.getElementById('alt-matrices-wrapper');
+      container.innerHTML = '';
+      const numCrit = criteriaNames.length;
+      const numAlt = alternatives.length;
+
+      for (let k = 0; k < numCrit; k++) {
+        const res = altResults[k];
+        const boxDiv = document.createElement('div');
+        boxDiv.style.marginBottom = '28px';
+        const critTitle = criteriaNames[k].name || `Kriteria ${k+1} (${criteriaNames[k].id})`;
+        const critDescText = criteriaNames[k].desc || 'Fokus evaluasi belum diisi';
+
+        let html = `
+          <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--primary); margin-bottom: 8px;">
+            ${k + 1}. Terhadap Kriteria: ${critTitle}
+          </h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+            <em>Fokus Evaluasi:</em> ${critDescText}
+          </p>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 220px;">Alternatif Keputusan</th>
+                  ${alternatives.map((a, idx) => `<th>${a.name || ('Alternatif ' + a.id)}</th>`).join('')}
+                  <th>Jumlah Baris Norm.</th>
+                  <th>Prioritas Lokal (Eigenvector)</th>
+                  <th>Bobot (%)</th>
+                </tr>
+              </thead>
+              <tbody>
+        `;
+
+        for (let i = 0; i < numAlt; i++) {
+          const altRowName = alternatives[i].name || `Alternatif ${alternatives[i].id}`;
+          html += `<tr><td style="font-weight: 700;">${altRowName}</td>`;
+          for (let j = 0; j < numAlt; j++) {
+            if (i === j) {
+              html += `<td class="center" style="background:#f1f5f9; font-weight:700;">1</td>`;
+            } else if (i < j) {
+              const key = `${i}-${j}`;
+              const curVal = (currentAltPairwise[k] && currentAltPairwise[k][key] !== undefined) ? currentAltPairwise[k][key] : 1;
+              html += `
+                <td class="cell-input">
+                  <select class="ahp-select" onchange="updateAltPairwise(${k}, '${key}', this.value)">
+                    ${saatyOptions.map(opt => `
+                      <option value="${opt.val}" ${Math.abs(opt.val - curVal) < 0.001 ? 'selected' : ''}>
+                        ${opt.label}
+                      </option>
+                    `).join('')}
+                  </select>
+                </td>
+              `;
+            } else {
+              const val = res.matrix[i][j];
+              html += `<td class="center cell-calc">${formatFraction(val)} <span style="font-size:0.75rem; color:var(--text-muted);">(${val.toFixed(3)})</span></td>`;
+            }
+          }
+          html += `<td class="center" style="font-weight:600;">${res.rowNormSums[i].toFixed(4)}</td>`;
+          html += `<td class="center cell-summary">${res.weights[i].toFixed(4)}</td>`;
+          html += `<td class="center cell-summary" style="color:var(--primary); font-size:0.95rem;">${(res.weights[i] * 100).toFixed(2)}%</td>`;
+          html += `</tr>`;
+        }
+
+        let sumColHtml = alternatives.map((a, j) => `<td class="center">${res.colSums[j].toFixed(3)}</td>`).join('');
+
+        html += `
+              </tbody>
+              <tfoot>
+                <tr style="background:#f8fafc; font-weight:700;">
+                  <td>Jumlah Kolom (Sum)</td>
+                  ${sumColHtml}
+                  <td class="center">${numAlt.toFixed(3)}</td>
+                  <td class="center">1.000</td>
+                  <td class="center">100.0%</td>
+                </tr>
+              </tfoot>
+            </table>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; font-size:0.8rem; color:var(--text-muted);">
+              <span>&lambda; max: <strong>${res.lambdaMax.toFixed(4)}</strong> | CI: <strong>${res.ci.toFixed(4)}</strong> | CR: <strong>${(res.cr * 100).toFixed(2)}%</strong></span>
+              <span class="status-pill ${res.isValid ? 'valid' : 'invalid'}">${res.isValid ? 'Konsisten (CR < 10%)' : 'Inkonsisten (CR ≥ 10%)'}</span>
+            </div>
+          </div>
+        `;
+        boxDiv.innerHTML = html;
+        container.appendChild(boxDiv);
+      }
+    }
+
+    function updateAltPairwise(critIdx, key, val) {
+      if (!currentAltPairwise[critIdx]) currentAltPairwise[critIdx] = {};
+      currentAltPairwise[critIdx][key] = parseFloat(val);
+      renderApp();
+    }
+
+    function renderSynthesisTab(critResult, altResults, globalWeights) {
+      const numCrit = criteriaNames.length;
+      const numAlt = alternatives.length;
+
+      document.getElementById('syn-thead-row1').innerHTML = `
+        <th rowspan="2">Kriteria Keputusan</th>
+        <th rowspan="2">Bobot Kriteria ($W_j$)</th>
+        <th colspan="${numAlt}">Prioritas Lokal Alternatif ($L_{ij}$)</th>
+        <th colspan="${numAlt}">Kontribusi Bobot Global ($W_j \\times L_{ij}$)</th>
+        <th rowspan="2">Check</th>
+      `;
+      document.getElementById('syn-thead-row2').innerHTML = `
+        ${alternatives.map((a, idx) => `<th>${a.short || ('Alt ' + a.id)}</th>`).join('')}
+        ${alternatives.map((a, idx) => `<th>${a.short || ('Alt ' + a.id)}</th>`).join('')}
+      `;
+
+      const tbody = document.getElementById('synthesis-tbody');
+      tbody.innerHTML = '';
+
+      const sumGlobals = Array(numAlt).fill(0);
+
+      for (let k = 0; k < numCrit; k++) {
+        const tr = document.createElement('tr');
+        const wK = critResult.weights[k];
+        const critNameText = criteriaNames[k].name || `Kriteria ${k+1} (${criteriaNames[k].id})`;
+
+        let localsHtml = '';
+        let globsHtml = '';
+        let rowCheck = 0;
+
+        for (let a = 0; a < numAlt; a++) {
+          const localVal = altResults[k] ? altResults[k].weights[a] : 0;
+          const globVal = wK * localVal;
+          sumGlobals[a] += globVal;
+          rowCheck += globVal;
+
+          localsHtml += `<td class="center">${(localVal * 100).toFixed(2)}%</td>`;
+          globsHtml += `<td class="center cell-calc" style="font-weight:700;">${globVal.toFixed(4)}</td>`;
+        }
+
+        tr.innerHTML = `
+          <td style="font-weight:700;">${critNameText}</td>
+          <td class="center cell-summary">${(wK * 100).toFixed(2)}%</td>
+          ${localsHtml}
+          ${globsHtml}
+          <td class="center">${rowCheck.toFixed(4)}</td>
+        `;
+        tbody.appendChild(tr);
+      }
+
+      const tfootObj = document.querySelector('#tab-sintesis table tfoot');
+      if (tfootObj) {
+        const sumGlobalCells = sumGlobals.map(g => `<td class="center" style="font-weight:700;">${g.toFixed(4)}</td>`).join('');
+        const sumPctCells = sumGlobals.map(g => `<td class="center">${(g * 100).toFixed(2)}%</td>`).join('');
+        const totalCheck = sumGlobals.reduce((acc, v) => acc + v, 0);
+
+        tfootObj.innerHTML = `
+          <tr class="cell-summary">
+            <td>BOBOT SINTESIS GLOBAL TOTAL</td>
+            <td class="center">100.0%</td>
+            ${Array(numAlt).fill('<td class="center">-</td>').join('')}
+            ${sumGlobalCells}
+            <td class="center">${totalCheck.toFixed(4)}</td>
+          </tr>
+          <tr style="background: #e2e8f0; font-weight: 800;">
+            <td colspan="${2 + numAlt}">PERSENTASE HASIL KEPUTUSAN (%)</td>
+            ${sumPctCells}
+            <td class="center">100.0%</td>
+          </tr>
+        `;
+      }
+    }
+
+    function renderSensitivitySliders(critWeights, altResults) {
+      const container = document.getElementById('sensitivity-sliders');
+      const numCrit = criteriaNames.length;
+      const activeWeights = (manualWeights && manualWeights.length === numCrit) ? manualWeights : [...critWeights];
+
+      container.innerHTML = '';
+      criteriaNames.forEach((crit, i) => {
+        const val = Math.round((activeWeights[i] || 0) * 100);
+        const div = document.createElement('div');
+        div.className = 'slider-group';
+        const critLabelText = crit.name || `Kriteria ${i+1} (${crit.id})`;
+        div.innerHTML = `
+          <div class="slider-header">
+            <span>${critLabelText}</span>
+            <span id="slider-val-${i}" style="color:var(--primary); font-weight:700;">${val}%</span>
+          </div>
+          <input type="range" min="0" max="100" value="${val}" oninput="onSensitivitySliderChange(${i}, this.value)">
+        `;
+        container.appendChild(div);
+      });
+
+      updateSensitivityChart(activeWeights, altResults);
+    }
+
+    function onSensitivitySliderChange(changedIdx, newVal) {
+      const parsedVal = parseFloat(newVal);
+      const numCrit = criteriaNames.length;
+      const numAlt = alternatives.length;
+
+      if (!manualWeights || manualWeights.length !== numCrit) {
+        const critResult = computeAHPMatrix(numCrit, currentCritPairwise);
+        manualWeights = [...critResult.weights];
+      }
+
+      manualWeights[changedIdx] = parsedVal / 100;
+
+      const sumOther = manualWeights.reduce((acc, w, idx) => idx !== changedIdx ? acc + w : acc, 0);
+      const remainder = 1 - manualWeights[changedIdx];
+
+      if (sumOther > 0 && remainder >= 0) {
+        for (let i = 0; i < numCrit; i++) {
+          if (i !== changedIdx) {
+            manualWeights[i] = (manualWeights[i] / sumOther) * remainder;
+          }
+        }
+      }
+
+      for (let i = 0; i < numCrit; i++) {
+        const span = document.getElementById(`slider-val-${i}`);
+        if (span) span.textContent = `${(manualWeights[i] * 100).toFixed(1)}%`;
+      }
+
+      const altResults = [];
+      for (let k = 0; k < numCrit; k++) {
+        if (!currentAltPairwise[k]) currentAltPairwise[k] = {};
+        altResults.push(computeAHPMatrix(numAlt, currentAltPairwise[k]));
+      }
+      updateSensitivityChart(manualWeights, altResults);
+    }
+
+    function updateSensitivityChart(weights, altResults) {
+      const numCrit = criteriaNames.length;
+      const numAlt = alternatives.length;
+      const simGlobal = Array(numAlt).fill(0);
+
+      for (let a = 0; a < numAlt; a++) {
+        for (let k = 0; k < numCrit; k++) {
+          simGlobal[a] += (weights[k] || 0) * (altResults[k] ? altResults[k].weights[a] : 0);
+        }
+      }
+
+      const simRanked = alternatives.map((alt, idx) => ({
+        ...alt,
+        short: alt.short || `Alt ${alt.id}`,
+        weight: simGlobal[idx] || 0
+      })).sort((a, b) => b.weight - a.weight);
+
+      const chartBox = document.getElementById('sensitivity-bars');
+      chartBox.innerHTML = '';
+      simRanked.forEach((item, rIdx) => {
+        const pct = (item.weight * 100).toFixed(2);
+        const div = document.createElement('div');
+        div.className = 'bar-wrapper';
+        div.innerHTML = `
+          <div class="bar-label">#${rIdx + 1} ${item.short}</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width: ${pct}%; background-color: ${item.color || '#3b82f6'};">
+              ${pct}%
+            </div>
+          </div>
+          <div class="bar-value">${pct}%</div>
+        `;
+        chartBox.appendChild(div);
+      });
+    }
+
+    function exportToPDF() {
+      window.print();
+    }
+
+    function exportToWord() {
+      const goal = decisionGoal || 'Belum Ditentukan';
+      const nama = respondentInfo.nama || 'Belum Diisi';
+      const instansi = respondentInfo.instansi || 'Belum Diisi';
+      const jabatan = respondentInfo.jabatan || 'Belum Diisi';
+      const tanggal = respondentInfo.tanggal || 'Belum Diisi';
+
+      const content = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+          <meta charset='utf-8'>
+          <title>Laporan Hasil Analisis AHP</title>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.5; color: #0f172a; padding: 20px; }
+            h1 { color: #1e3a8a; font-size: 18pt; border-bottom: 2px solid #0284c7; padding-bottom: 6px; }
+            h2 { color: #172554; font-size: 14pt; margin-top: 20px; }
+            .box { background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 12px; margin-bottom: 20px; }
+            table { border-collapse: collapse; width: 100%; margin-top: 10px; margin-bottom: 20px; }
+            th, td { border: 1px solid #cbd5e1; padding: 8px 10px; font-size: 10pt; text-align: left; }
+            th { background-color: #f1f5f9; text-align: center; font-weight: bold; }
+            .center { text-align: center; }
+          </style>
+        </head>
+        <body>
+          <h1>Laporan Analisis Keputusan AHP (Analytic Hierarchy Process)</h1>
+          <div class="box">
+            <p><strong>Tujuan Keputusan (Goal):</strong> ${goal}</p>
+            <p><strong>Evaluator / Responden:</strong> ${nama} (${jabatan} - ${instansi})</p>
+            <p><strong>Tanggal Pengisian:</strong> ${tanggal}</p>
+          </div>
+
+          <h2>1. Pemeringkatan Akhir Keputusan (Bobot Sintesis Global)</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Peringkat</th>
+                <th>Alternatif Keputusan</th>
+                <th>Bobot Global (%)</th>
+                <th>Status Evaluasi</th>
+                <th>Deskripsi</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${document.getElementById('dashboard-ranking-tbody') ? document.getElementById('dashboard-ranking-tbody').innerHTML : ''}
+            </tbody>
+          </table>
+
+          <h2>2. Matriks Perbandingan Kriteria & Uji Consistency Ratio (CR)</h2>
+          ${document.querySelector('#tab-kriteria table') ? document.querySelector('#tab-kriteria table').outerHTML : ''}
+
+          <h2>3. Matriks Sintesis Global</h2>
+          ${document.querySelector('#tab-sintesis table') ? document.querySelector('#tab-sintesis table').outerHTML : ''}
+        </body>
+        </html>
+      `;
+
+      const blob = new Blob(['\ufeff', content], { type: 'application/msword' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Laporan_Hasil_AHP_${new Date().toISOString().slice(0, 10)}.doc`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(section => section.classList.remove('active'));
+
+      if (event && event.target) {
+        event.target.classList.add('active');
+      }
+      document.getElementById(`tab-${tabId}`).classList.add('active');
+    }
+
+    function resetToWorkbookDefaults() {
+      currentCritPairwise = { ...defaultCritPairwise };
+      currentAltPairwise = JSON.parse(JSON.stringify(defaultAltPairwise));
+      manualWeights = null;
+      renderApp();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderSetupForms();
+    });
+  </script>
+</body>
+</html>
